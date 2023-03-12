@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "60496748290",
+    "project_id": "delic-e85bf",
+    "storage_bucket": "delic-e85bf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:60496748290:android:5cfe9d7284910cd509ec1b",
+        "android_client_info": {
+          "package_name": "com.example.stmm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "60496748290-asqc1dl2ac7aksqisaihcv332eun2m9o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDq9W7c-kz6BRe43cFObJckB6FqcCA0teM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "60496748290-asqc1dl2ac7aksqisaihcv332eun2m9o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
