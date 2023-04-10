@@ -2,13 +2,18 @@
 
 import 'dart:ui';
 
+import 'package:calendar_timeline/calendar_timeline.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:search_page/search_page.dart';
 
 import 'package:stmm/Controlllers.dart/AppController.dart';
+import 'package:stmm/Models.dart/ChaufferModel.dart';
+import 'package:stmm/Models.dart/Usermodels.dart';
+import 'package:stmm/pages/ChauffeurPage.dart';
 
+import '../Models.dart/Trajets.dart';
 import '../Widgets/driverWidget.dart';
 import 'addBus.dart';
 
@@ -24,7 +29,71 @@ class AdminPage extends StatefulWidget {
 
 class _AdminPageState extends State<AdminPage> {
   int _currentindex = 0;
+  List<int> jours = [for (int i = 0; i <= 31; i++) i];
+  DateTime _selectedDate = DateTime.now();
+  List<DateTime> dates = [
+    for (int i = 1; i < 32; i++)
+      DateTime(2023, DateTime.now().month, DateTime.now().day == 30 ? i - 1 : i)
+  ];
+  DateTime selectedDate = DateTime.now();
+  List<Trajet> _events = <Trajet>[];
+  List<Usermodel> _users = <Usermodel>[];
   PageController controller = PageController(initialPage: 0);
+
+  // Future<void> getData() async {
+  //   List<Trajet> events = [];
+  //   List<Usermodel> users = <Usermodel>[];
+  //   Usermodel user;
+  //   // Parcourir les documents de la collection Firestore
+  //   for (var document in authController.chauffeurTrajets) {
+  //     // Extraire la date de création du document
+  //     DateTime createdAt = document.dateDepart!;
+  //     if (createdAt.year == _selectedDate.year &&
+  //             createdAt.month == _selectedDate.month &&
+  //             createdAt.day == _selectedDate.day
+  //         // widget.driver!.id == document.idChauffeur
+  //         ) {
+  //       authController.userlist.forEach((element) {
+  //         if (element.id == document.idChauffeur) {
+  //           users.contains(element) ? null : users.add(element);
+  //         }
+  //       });
+  //       events.add(document);
+  //     }
+  //   }
+
+  //   setState(() {
+  //     _events = events;
+  //     _users = users;
+  //   });
+  // }
+
+  void onpageChanged(int index) {
+    controller.jumpToPage(index);
+    setState(() {
+      _currentindex = index;
+      _selectedDate = dates[_currentindex];
+      authController.year.value = _selectedDate.year;
+      authController.day.value = _selectedDate.day;
+      authController.month.value = _selectedDate.month;
+    });
+    authController.getData();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // getData();
+    _selectedDate = dates[_currentindex];
+    _currentindex = _selectedDate.day;
+    authController.year.value = _selectedDate.year;
+    authController.day.value = _selectedDate.day;
+    authController.month.value = _selectedDate.month;
+    authController.getData();
+    authController.getData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,6 +126,7 @@ class _AdminPageState extends State<AdminPage> {
       //           ),
       //           label: 'Chauffeur')
       //     ]),
+
       drawer: const AdminMenuBar(),
       appBar: AppBar(
         backgroundColor: Colors.black,
@@ -79,22 +149,39 @@ class _AdminPageState extends State<AdminPage> {
               onTap: () => showSearch(
                   context: context,
                   delegate: SearchPage(
+                      barTheme: ThemeData(
+                          backgroundColor: Colors.black,
+                          appBarTheme: const AppBarTheme(
+                            backgroundColor: Colors.white,
+                          )),
                       searchStyle: const TextStyle(color: Colors.black),
+                      suggestion: Obx(() => GridView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            shrinkWrap: true,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 8,
+                                    mainAxisSpacing: 12,
+                                    mainAxisExtent: 200),
+                            itemCount: authController.userlist.length,
+                            itemBuilder: (_, index) {
+                              return driverWidget(
+                                  axeName: '',
+                                  driver: authController.userlist[index]);
+                            },
+                          )),
                       builder: (user) => GestureDetector(
                           onTap: () {
-                            // authcontroller.selectedDriver.add(user.nom);
-                            // Navigator.of(context).pop();
-                            // Navigator.of(context).push(
-                            //     MaterialPageRoute(
-                            //         builder: (BuildContext context) {
-                            //   return ChauffeuPage(user: user);
-                            // }));
+                            Get.to(() => ChauffeurPage(
+                                  driver: user,
+                                ));
                           },
-                          child: const ListTile(
-                            title: Text('nom du chauffeur'),
-                            // subtitle: Text(user.axe!),
+                          child: ListTile(
+                            title: Text(user.name!),
+                            // subtitle: Text(user.email!),
                           )),
-                      filter: ((user) => []),
+                      filter: ((user) => [user.name, user.axe]),
                       items: authController.userlist,
                       searchLabel: 'trouver un chauffeur',
                       failure:
@@ -139,67 +226,68 @@ class _AdminPageState extends State<AdminPage> {
             //     ],
             //   ),
             // ),
+            CalendarTimeline(
+              showYears: true,
+              initialDate: dates[_currentindex],
+              // initialDate: DateTime.now(),
+              firstDate: dates.first,
+              lastDate: dates.last,
+              onDateSelected: (date) {
+                setState(() {
+                  _selectedDate = dates[_currentindex];
+                });
+                int index = dates.indexWhere((element) => element == date);
+
+                controller.jumpToPage(index);
+                authController.getData();
+              },
+              leftMargin: 20,
+              monthColor: Colors.white,
+              dayColor: Colors.white,
+              activeDayColor: Colors.black,
+              activeBackgroundDayColor: Colors.white,
+              dotsColor: const Color(0xFF333A47),
+              // selectableDayPredicate: (date) => date.day != 23,
+              locale: 'fr',
+            ),
+            const SizedBox(
+              height: 10,
+            ),
             Expanded(
-                child: Obx(() => PageView(
-                        onPageChanged: (index) {
-                          setState(() {
-                            _currentindex = index;
-                          });
-                        },
-                        controller: controller,
-                        children: [
-                          if (authController.userlist.isEmpty)
-                            Center(
-                                child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text('Pas de voyage en cours'),
-                                OutlinedButton(
-                                    onPressed: () {
-                                      // Navigator.of(context).push(
-                                      //     MaterialPageRoute(
-                                      //         builder: (BuildContext context) {
-                                      //   return const AddBus();
-                                      // }));
-                                    },
-                                    child: const Text('Nouvelle destination'))
-                              ],
-                            ))
-                          else
-                            Obx(() => GridView.builder(
-                                  physics: const BouncingScrollPhysics(),
-                                  shrinkWrap: true,
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    crossAxisSpacing: 8,
-                                    mainAxisSpacing: 12,
-                                    mainAxisExtent: 300,
-                                  ),
-                                  itemCount: authController.userlist.length,
-                                  itemBuilder: (_, index) {
-                                    return driverWidget(
-                                        driver: authController.userlist[index]);
-                                  },
-                                )),
-                          //     Obx(() => GridView.builder(
-                          //           physics: const BouncingScrollPhysics(),
-                          //           shrinkWrap: true,
-                          //           gridDelegate:
-                          //               const SliverGridDelegateWithFixedCrossAxisCount(
-                          //                   crossAxisCount: 2,
-                          //                   crossAxisSpacing: 8,
-                          //                   mainAxisSpacing: 12,
-                          //                   mainAxisExtent: 300),
-                          //           itemCount: authcontroller.allUsers.length,
-                          //           itemBuilder: (_, index) {
-                          //             return driverWidget(
-                          //                 driver: authcontroller.allUsers[index]);
-                          //           },
-                          //         )),
-                          //   ],
-                          // ))),
-                        ])))
+                child: PageView.builder(
+              itemCount: dates.length,
+              onPageChanged: onpageChanged,
+              controller: controller,
+              itemBuilder: (BuildContext context, int index) {
+                return Obx(() => GridView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      shrinkWrap: true,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 12,
+                        mainAxisExtent: 300,
+                      ),
+                      itemCount: authController.usersOfday.length,
+                      itemBuilder: (_, index) {
+                        return driverWidget(
+                            axeName: authController.chauffeurTrajets
+                                .firstWhere((element) {
+                              return element.dateDepart!.year ==
+                                      authController.year.value &&
+                                  element.dateDepart!.month ==
+                                      authController.month.value &&
+                                  element.dateDepart!.day ==
+                                      authController.day.value &&
+                                  element.idChauffeur ==
+                                      authController.usersOfday[index].id;
+                            }).positionArrivee,
+                            driver: authController.usersOfday[index]);
+                      },
+                    ));
+              },
+            ))
           ],
         ),
       ),
@@ -227,7 +315,16 @@ class _InfosState extends State<Infos> {
               mainAxisExtent: 300),
           itemCount: authController.userlist.length,
           itemBuilder: (_, index) {
-            return driverWidget(driver: authController.userlist[index]);
+            return driverWidget(
+                axeName: authController.chauffeurTrajets.firstWhere((element) {
+                  return element.dateDepart!.year ==
+                          authController.year.value &&
+                      element.dateDepart!.month == authController.month.value &&
+                      element.dateDepart!.day == authController.day.value &&
+                      element.idChauffeur ==
+                          authController.usersOfday[index].id;
+                }).positionArrivee,
+                driver: authController.userlist[index]);
           },
         ));
   }

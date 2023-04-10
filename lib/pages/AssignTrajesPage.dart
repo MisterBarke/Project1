@@ -2,32 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:get/get.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:stmm/Controlllers.dart/AppController.dart';
 import 'package:stmm/Models.dart/Trajets.dart';
+
 import 'package:stmm/Models.dart/Usermodels.dart';
 
-class AssignTrajet extends StatelessWidget {
+class AssignTrajet extends StatefulWidget {
   const AssignTrajet({super.key});
 
   @override
+  State<AssignTrajet> createState() => _AssignTrajetState();
+}
+
+class _AssignTrajetState extends State<AssignTrajet> {
+  @override
   Widget build(BuildContext context) {
+    String heures;
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
         backgroundColor: Colors.black,
-      ),
-      body: ListView(
-        children: authController.selectedUsers
-            .map((element) => UtilisateurWidget(
-                    user: element,
-                    villesExistantes: const [
-                      'Agadez-Niamey',
-                      'Niamey-Tahoua',
-                      'Mali-Togo'
-                    ]))
-            .toList(),
-      ),
-    );
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: const Text(
+            'Renseignements des informations',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        body: ListView(
+          children: authController.selectedUsers
+              .map((element) => UtilisateurWidget(
+                      user: element,
+                      villesExistantes: const [
+                        'Agadez-Niamey',
+                        'Niamey-Arlit',
+                        'Mali-Togo'
+                      ]))
+              .toList(),
+        ));
   }
 }
 
@@ -65,8 +77,6 @@ class _UtilisateurWidgetState extends State<UtilisateurWidget> {
 
   @override
   Widget build(BuildContext context) {
-    //...
-
     return GestureDetector(
       onTap: () async {
         final result = await showDialog<Map<String, dynamic>>(
@@ -74,11 +84,105 @@ class _UtilisateurWidgetState extends State<UtilisateurWidget> {
           builder: (context) {
             return AlertDialog(
               title: Text(widget.user.name!),
-              content: _buildForm(),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // DropdownButtonFormField<String>(
+                  //   value: _villeSelectionnee,
+                  //   onChanged: (value) {
+                  //     setState(() {
+                  //       _villeSelectionnee = value!;
+                  //     });
+                  //   },
+                  //   items: [
+                  //     ...widget.villesExistantes
+                  //         .map((ville) => DropdownMenuItem(
+                  //               value: ville,
+                  //               child: Text(ville),
+                  //             ))
+                  //         .toList(),
+                  //     DropdownMenuItem(
+                  //       value: _villeSelectionnee,
+                  //       child: Text(_villeSelectionnee),
+                  //     ),
+                  //   ],
+                  //   decoration: const InputDecoration(
+                  //     labelText: 'Ville',
+                  //   ),
+                  // ),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                        label: Text('Axe'), hintText: 'expl : Niamey-Arlit'),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      const Icon(Icons.event, color: Colors.grey),
+                      const SizedBox(width: 8.0),
+                      Text(
+                          'Le  ${_dateSelectionnee.day} / ${_dateSelectionnee.month}'),
+                      const SizedBox(width: 8.0),
+                      const Spacer(),
+                      InkWell(
+                        child: const Icon(Icons.edit, color: Colors.blue),
+                        onTap: () {
+                          showDatePicker(
+                            context: context,
+                            initialDate: _dateSelectionnee,
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2025),
+                          ).then((date) {
+                            if (date != null) {
+                              setState(() {
+                                _dateSelectionnee = date;
+                              });
+                            }
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  InkWell(
+                    onTap: () {
+                      DatePicker.showTimePicker(
+                        context,
+                        showSecondsColumn: false,
+                        onConfirm: (time) {
+                          setState(() {
+                            _heureSelectionnee = TimeOfDay.fromDateTime(time);
+                            // repositoryController.heureSelection =
+                            //     _heureSelectionnee.hour.toString() as RxString;
+                          });
+                        },
+                        onChanged: (time) {
+                          setState(() {
+                            _heureSelectionnee = TimeOfDay.fromDateTime(time);
+                          });
+                        },
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.black),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Heure de naissance'),
+                          Text(_heureSelectionnee.hour.toString()),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Annuler'),
+                  child: const Text('Annuler'),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -86,8 +190,20 @@ class _UtilisateurWidgetState extends State<UtilisateurWidget> {
                     //   'ville': _villeSelectionnee,
                     //   'heure': _heureSelectionnee,
                     // });
+
+                    // final Trajet trajet = Trajet(
+                    //     dateDepart: _dateSelectionnee.day.toString(),
+                    //     heure:
+                    //         '${_heureSelectionnee.hour.toString()} +:${_heureSelectionnee.minute.toString()} ',
+                    //     positionArrivee: _villeSelectionnee,
+                    //     idAdministrateur: authController.usermodel.value.id,
+                    //     idChauffeur: widget.user.id,
+                    //     idTrajet: widget.user.id,
+                    //     statut: 'En route');
+                    Navigator.of(context).pop();
+                    // print(trajet.positionArrivee);
                   },
-                  child: Text('Enregistrer'),
+                  child: const Text('Enregistrer'),
                 ),
               ],
             );
@@ -136,28 +252,32 @@ class _UtilisateurWidgetState extends State<UtilisateurWidget> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        DropdownButtonFormField<String>(
-          value: _villeSelectionnee,
-          onChanged: (value) {
-            setState(() {
-              _villeSelectionnee = value!;
-            });
-          },
-          items: [
-            ...widget.villesExistantes
-                .map((ville) => DropdownMenuItem(
-                      value: ville,
-                      child: Text(ville),
-                    ))
-                .toList(),
-            DropdownMenuItem(
-              value: _villeSelectionnee,
-              child: Text(_villeSelectionnee),
-            ),
-          ],
+        // DropdownButtonFormField<String>(
+        //   value: _villeSelectionnee,
+        //   onChanged: (value) {
+        //     setState(() {
+        //       _villeSelectionnee = value!;
+        //     });
+        //   },
+        //   items: [
+        //     ...widget.villesExistantes
+        //         .map((ville) => DropdownMenuItem(
+        //               value: ville,
+        //               child: Text(ville),
+        //             ))
+        //         .toList(),
+        //     DropdownMenuItem(
+        //       value: _villeSelectionnee,
+        //       child: Text(_villeSelectionnee),
+        //     ),
+        //   ],
+        //   decoration: const InputDecoration(
+        //     labelText: 'Ville',
+        //   ),
+        // ),
+        TextFormField(
           decoration: const InputDecoration(
-            labelText: 'Ville',
-          ),
+              label: Text('Axe'), hintText: 'expl : Niamey-Arlit'),
         ),
         const SizedBox(height: 20),
         Row(
@@ -166,6 +286,7 @@ class _UtilisateurWidgetState extends State<UtilisateurWidget> {
             const SizedBox(width: 8.0),
             Text('Le  ${_dateSelectionnee.day} / ${_dateSelectionnee.month}'),
             const SizedBox(width: 8.0),
+            const Spacer(),
             InkWell(
               child: const Icon(Icons.edit, color: Colors.blue),
               onTap: () {
@@ -194,12 +315,19 @@ class _UtilisateurWidgetState extends State<UtilisateurWidget> {
               onConfirm: (time) {
                 setState(() {
                   _heureSelectionnee = TimeOfDay.fromDateTime(time);
+                  // repositoryController.heureSelection =
+                  //     _heureSelectionnee.hour.toString() as RxString;
+                });
+              },
+              onChanged: (time) {
+                setState(() {
+                  _heureSelectionnee = TimeOfDay.fromDateTime(time);
                 });
               },
             );
           },
           child: Container(
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.black),
@@ -207,8 +335,8 @@ class _UtilisateurWidgetState extends State<UtilisateurWidget> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Heure de naissance'),
-                Text(_heureSelectionnee.format(context)),
+                const Text('Heure de naissance'),
+                Text(_heureSelectionnee.hour.toString()),
               ],
             ),
           ),

@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:stmm/Controlllers.dart/AppController.dart';
+import 'package:stmm/Models.dart/Trajets.dart';
 import 'package:stmm/Models.dart/Usermodels.dart';
 
 import '../pages/ChauffeurPage.dart';
@@ -8,10 +11,12 @@ import '../pages/ChauffeurPage.dart';
 class driverWidget extends StatelessWidget {
   driverWidget({
     Key? key,
+    required this.axeName,
     required this.driver,
   }) : super(key: key);
 
   Usermodel? driver;
+  String? axeName;
 
   @override
   Widget build(BuildContext context) {
@@ -30,10 +35,14 @@ class driverWidget extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
+        // repositoryController.trajetsParChauffeur();
+
+        print(authController.chauffeurTrajets.length);
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (BuildContext context) {
           return ChauffeurPage(
             driver: driver,
+            // trajets: authController.chauffeurTrajets,
           );
         }));
       },
@@ -58,13 +67,11 @@ class driverWidget extends StatelessWidget {
             // ),
             Container(
               height: 150,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: Colors.white,
                 image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(
-                        "https://thumbs.dreamstime.com/b/homme-noir-souriant-au-pouvoir-220427321.jpg")),
-                borderRadius: BorderRadius.only(
+                    fit: BoxFit.cover, image: NetworkImage(driver!.imageUrl!)),
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16.0),
                   topRight: Radius.circular(16.0),
                   bottomLeft: Radius.circular(16.0),
@@ -108,15 +115,15 @@ class driverWidget extends StatelessWidget {
                       const SizedBox(
                         height: 6,
                       ),
-                      const Text('Niamey Maradi',
+                      Text(axeName ?? '',
                           style:
                               // GoogleFonts.eczar(
-                              TextStyle(
+                              const TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
                           )),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
                     ]),

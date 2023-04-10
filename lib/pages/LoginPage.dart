@@ -19,9 +19,9 @@ class LoginPage extends StatelessWidget {
                 height: 200,
               ),
               TextFormField(
-                controller: authController.email,
+                controller: authController.phone,
                 decoration: const InputDecoration(
-                  hintText: 'email',
+                  hintText: 'Télephone',
                 ),
               ),
               const SizedBox(
@@ -38,7 +38,7 @@ class LoginPage extends StatelessWidget {
               ),
               ElevatedButton(
                   onPressed: () {
-                    authController.logIn();
+                    authController.logIn(false);
                   },
                   child: const Text('Se connecter')),
               const SizedBox(
@@ -46,7 +46,7 @@ class LoginPage extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  Get.off(() => const RegisterPAge());
+                  // Get.off(() => const RegisterPAge());
                 },
                 child: const Text(
                   'nouveau compte ?',

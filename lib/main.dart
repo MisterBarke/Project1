@@ -1,8 +1,48 @@
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
 import 'package:stmm/Controlllers.dart/AuthController.dart';
 import 'package:stmm/Controlllers.dart/RepositoryController.dart';
+
+class FirebaseMessagingService {
+  FirebaseMessaging _fcm = FirebaseMessaging.instance;
+
+  Future initialise() async {
+    // Demande la permission pour envoyer des notifications
+    await _fcm.requestPermission();
+
+    // Configure la réception des notifications
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("Message received");
+      // Affiche une notification locale lors de la réception du message
+    });
+
+    // Configure la gestion des messages lors de la réception en arrière-plan
+    // FirebaseMessaging.onBackgroundMessage(_backgroundHandler);
+  }
+
+  Future<void> _backgroundHandler(RemoteMessage message) async {
+    print("Message received in background");
+    // Traite le message reçu en arrière-plan
+  }
+}
+
+Future<void> _initializeNotifications() async {
+  // initialise le plugin flutter_local_notifications
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  const InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+  );
+}
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,6 +50,15 @@ Future main() async {
     Get.put(AuthController());
     Get.put(RepositoryController());
   });
+  _initializeNotifications();
+  // await FirebaseMessaging.instance.requestPermission();
+
+  // Configure la réception des notifications
+  // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  //   print("Message received");
+  //   // Affiche une notification locale lors de la réception du message
+  // });
+  // FirebaseMessagingService().initialise();
   runApp(const MyApp());
 }
 
@@ -20,6 +69,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,

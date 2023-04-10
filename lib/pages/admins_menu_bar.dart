@@ -66,10 +66,14 @@ class AdminMenuBar extends StatelessWidget {
             ),
             onTap: () {
               Navigator.of(context).pop();
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (BuildContext context) {
-                return const AdDestination();
-              }));
+              authController.userlist.isEmpty
+                  ? const GetSnackBar(
+                      title: 'Aucun chauffeur énrégistrer',
+                    )
+                  : Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (BuildContext context) {
+                      return const AdDestination();
+                    }));
             },
           ),
           ListTile(
