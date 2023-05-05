@@ -46,7 +46,7 @@ class AuthController extends GetxController {
     super.onReady();
     // _determinePosition;
     getData();
-    showNotification("Bonjour", 'nouveau message');
+    showNotification("Salut", 'nouveau message');
     firebaseUser = Rxn<User>(auth.currentUser);
     ever(firebaseUser, setInitialScreen);
     userlist.bindStream(getUserById());
@@ -183,12 +183,7 @@ class AuthController extends GetxController {
               .toList(),
         );
   }
-  // Stream<List<Trajet>> trajetsParChauffeur() {
-  //   return FirebaseFirestore.instance.collection('Trajets').snapshots().map(
-  //       (QuerySnapshot snapshot) => snapshot.docs
-  //           .map((DocumentSnapshot doc) => Trajet.fromSnapshot(doc))
-  //           .toList());
-  // }
+
 
   Stream<Usermodel> initialiseUserModel() {
     return FirebaseFirestore.instance

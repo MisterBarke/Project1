@@ -3,7 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
-import 'package:stmm/Controlllers.dart/AuthController.dart';
+import 'package:stmm/Controlllers.dart/%20%20%20.dart';
 import 'package:stmm/Controlllers.dart/RepositoryController.dart';
 
 class FirebaseMessagingService {
